@@ -1,4 +1,5 @@
 const express = require('express');
+const { param } = require('express/lib/application');
 const app = express();
 
 //Permitir receber dados em JSON
@@ -18,7 +19,7 @@ app.get('/api/produtos',(req,res)=>{
 //POST
 app.post('/api/produtos',(req,res)=>{
     const novoProduto ={
-        id:produtos.lenght +1,
+        id:produtos.length +1,
         nome:req.body.nome
     };
     produtos.push(novoProduto);
@@ -26,7 +27,36 @@ app.post('/api/produtos',(req,res)=>{
 })
 
 //PUT
+app.put('/api/produtos/:id', (req,res)=>{
+    const id = parseInt(req.params.id, 10);
+    const produto = produtos.find(p=> p.id ===id);
+    if(isNaN(id)){
+        return res.status(400).json({ mensagem: 'O ID fornecido não é um número valido'});
+    }
+    if (!produto){
+        return res.status(404).json({mensagem:'produto não encotrado'});
+    }
+    const novoNome = req.body.nome;
+    if (!novoNome || novoNome.trim() === ''){
+        return res.status(400).json({mensagem:'O campo "nome" é obrigatório e não pode ser vazio'});
+    }
+    produto.nome =novoNome;
+    res.json(produto);
+});
+
 //DELETE
+app.delete('/api/produtos/:id', (req,res)=>{
+    const id = parseInt(req,params.id, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({mensagem:'O ID fornecido não é válido'});
+    }
+    const tamanhoOriginal = produtos.length;
+    produtos = produtos.filter(p => p.id !== id );
+    if (tamanhoOriginal == produtos.lenght) {
+        return res.status(404).json({mebsagem:'Produto não encontrado para exclusão'});
+    }
+    res.status(204).send();
+});
 
 //Rota principal
 app.get('/', (req, res) =>{
@@ -38,8 +68,8 @@ app.get('/sobre',(req,res)=>{
     res.send('Página Sobre');
 });
 
-//Rota "produto"
-app.get('/produto', (req,res)=>{
+//Rota "produtos"
+app.get('/produtos', (req,res)=>{
     res.send('Lista de Produtos');
 });
 
